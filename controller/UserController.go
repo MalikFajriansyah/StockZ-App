@@ -158,6 +158,23 @@ func Home(c echo.Context) error {
 	})
 }
 
+/*
+GetProfile returns the profile of a user by username
+
+Example: GET /profile/:username
+Response: 200 OK
+
+	{
+	  "profile": {
+	    "id": 1,
+	    "username": "john",
+	    "email": "john@example.com",
+	    "followers": 10,
+	    "followed": 5,
+	    "posts": [...]
+	  }
+	}
+*/
 func GetProfile(c echo.Context) error {
 	userParam := c.Param("username")
 	var user model.User
@@ -184,6 +201,25 @@ func GetProfile(c echo.Context) error {
 	})
 }
 
+// SearchUsername searches for users by username
+//
+// Example: GET /search?username=john
+// Response: 202 Accepted
+//
+//	{
+//	  "user": [
+//	    {
+//	      "id": 1,
+//	      "username": "john",
+//	      "email": "john@example.com"
+//	    },
+//	    {
+//	      "id": 2,
+//	      "username": "johnny",
+//	      "email": "johnny@example.com"
+//	    }
+//	  ]
+//	}
 func SearchUsername(c echo.Context) error {
 	searchName := c.QueryParam("username")
 	var users []model.User

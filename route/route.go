@@ -13,7 +13,7 @@ import (
 func RouteInit() {
 	tracer.Start(
 		tracer.WithServiceName("stockz-service"),
-		tracer.WithEnv("dev"),
+		tracer.WithEnv("prod"),
 	)
 	defer tracer.Stop()
 	e := echo.New()

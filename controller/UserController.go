@@ -176,9 +176,9 @@ Response: 200 OK
 	}
 */
 func GetProfile(c echo.Context) error {
-	userParam := c.Param("username")
 	var user model.User
-	if err := config.DB.Where("username = ?", userParam).Preload("Followed").Preload("Follower").Preload("Post").First(&user).Error; err != nil {
+	username := c.Param("username")
+	if err := config.DB.Preload("Followed").Preload("Follower").Preload("Post").First(&user, username).Error; err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "User doesn't exist")
 	}
 

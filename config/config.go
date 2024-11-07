@@ -25,7 +25,6 @@ func DatabaseInit() {
 	dbName := os.Getenv("DB_NAME")
 
 	connection := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Jakarta", dbHost, dbUser, dbPassword, dbName, dbPort)
-
 	db, e := gorm.Open(postgres.Open(connection), &gorm.Config{})
 	if e != nil {
 		panic("Error Connecting Databse")

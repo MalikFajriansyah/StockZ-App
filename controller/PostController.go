@@ -86,11 +86,6 @@ type commentResponse struct {
 }
 
 func GetAllPost(c echo.Context) error {
-	// var posts []model.Post
-
-	// if err := config.DB.Preload("User").Find(&posts).Error; err != nil {
-	// 	return echo.NewHTTPError(http.StatusInternalServerError, "Post not found")
-	// }
 	posts, err := middlewares.GetCommentInPosts(0)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed")
@@ -136,7 +131,7 @@ func PostById(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "Post with Id: "+idParam+" not available")
 	}
 
-	if err := config.DB.Preload("User").First(&post, id).Error; err != nil {
+	if err := config.DB.Preload("User").Preload("Comments").First(&post, id).Error; err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Post not found")
 	}
 

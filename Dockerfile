@@ -26,7 +26,7 @@ WORKDIR /app
 COPY --from=builder /app/main .
 
 # Copy file konfigurasi, jika ada
-COPY firebase-service-account.json /app/firebase-service-account.json
+COPY ServiceAccountKey.json /app/ServiceAccountKey.json
 
 # Expose port aplikasi
 EXPOSE 8080

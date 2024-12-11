@@ -20,8 +20,7 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Update repository dan install dependencies untuk GLIBC
-RUN sed -i 's/http:\/\/archive.ubuntu.com/http:\/\/mirror.kakao.com/' /etc/apt/sources.list \
-    && apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     wget \
     build-essential \

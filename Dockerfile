@@ -41,7 +41,7 @@ RUN sed -i 's/http:\/\/archive.ubuntu.com/http:\/\/mirror.kakao.com/' /etc/apt/s
     && rm -rf /var/lib/apt/lists/*
 
 # Set GLIBC baru sebagai default
-ENV LD_LIBRARY_PATH=/opt/glibc-2.32/lib:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/opt/glibc-2.32/lib
 
 # Set working directory
 WORKDIR /app

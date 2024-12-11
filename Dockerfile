@@ -16,8 +16,27 @@ RUN go build -o main .
 # Image untuk produksi
 FROM debian:bullseye
 
-# Install CA certificates (penting untuk Firebase)
-RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
+# Install dependencies dan GLIBC terbaru
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    wget \
+    build-essential \
+    && wget http://ftp.gnu.org/gnu/libc/glibc-2.32.tar.gz \
+    && tar -xvzf glibc-2.32.tar.gz \
+    && cd glibc-2.32 \
+    && mkdir build \
+    && cd build \
+    && ../configure --prefix=/opt/glibc-2.32 \
+    && make -j$(nproc) \
+    && make install \
+    && cd ../.. \
+    && rm -rf glibc-2.32 glibc-2.32.tar.gz \
+    && apt-get remove --purge -y wget build-essential \
+    && apt-get autoremove -y \
+    && apt-get clean
+
+# Set GLIBC baru sebagai default
+ENV LD_LIBRARY_PATH=/opt/glibc-2.32/lib:$LD_LIBRARY_PATH
 
 # Set working directory
 WORKDIR /app

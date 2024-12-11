@@ -1,3 +1,31 @@
+# version: "3.8"
+# services:
+#   app:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#     ports:
+#       - "8080:8080"
+#     environment:
+#       - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+#       - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+#     volumes:
+#        - ./ServiceAccountKey.json:${GOOGLE_APPLICATION_CREDENTIALS}
+#     depends_on:
+#       - db
+
+#   db:
+#     image: postgres:15
+#     environment:
+#       POSTGRES_USER: ${DB_USER}
+#       POSTGRES_PASSWORD: ${DB_PASSWORD}
+#       POSTGRES_DB: ${DB_NAME}
+#     volumes:
+#       - db_data:/var/lib/postgresql/data
+
+# volumes:
+#   db_data:
+
 version: "3.8"
 services:
   app:
@@ -10,10 +38,9 @@ services:
       - DATABASE_URL=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
       - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
     volumes:
-       - ./ServiceAccountKey.json:${GOOGLE_APPLICATION_CREDENTIALS}
+      - ./ServiceAccountKey.json:${GOOGLE_APPLICATION_CREDENTIALS}
     depends_on:
       - db
-
   db:
     image: postgres:15
     environment:
@@ -22,6 +49,5 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - db_data:/var/lib/postgresql/data
-
 volumes:
   db_data:

@@ -1,4 +1,4 @@
-# Gunakan base image untuk Golang
+# Stage 1: Build Stage
 FROM golang:1.23.4 AS builder
 
 # Set working directory
@@ -13,11 +13,15 @@ RUN go mod tidy
 # Build aplikasi
 RUN go build -o main .
 
-# Image untuk produksi
-FROM debian:bullseye
+# Stage 2: Production Stage
+FROM ubuntu:20.04
 
-# Install dependencies dan GLIBC terbaru
-RUN apt-get update && apt-get install -y \
+# Set non-interactive mode untuk apt
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update repository dan install dependencies untuk GLIBC
+RUN sed -i 's/http:\/\/archive.ubuntu.com/http:\/\/mirror.kakao.com/' /etc/apt/sources.list \
+    && apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     wget \
     build-essential \
@@ -33,7 +37,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf glibc-2.32 glibc-2.32.tar.gz \
     && apt-get remove --purge -y wget build-essential \
     && apt-get autoremove -y \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set GLIBC baru sebagai default
 ENV LD_LIBRARY_PATH=/opt/glibc-2.32/lib:$LD_LIBRARY_PATH
@@ -44,7 +49,7 @@ WORKDIR /app
 # Copy binary dari tahap builder
 COPY --from=builder /app/main .
 
-# Copy file konfigurasi, jika ada
+# Copy file konfigurasi Firebase
 COPY ServiceAccountKey.json /app/ServiceAccountKey.json
 
 # Expose port aplikasi

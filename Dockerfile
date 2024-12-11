@@ -1,58 +1,47 @@
-# Stage 1: Build Stage
-FROM golang:1.23.4 AS builder
+# Gunakan image base Ubuntu dengan versi yang sesuai
+FROM ubuntu:22.04
 
-# Set working directory
+# Update dan upgrade paket sistem
+RUN apt-get update && apt-get upgrade -y
+
+# Install Go
+RUN wget https://go.dev/dl/go1.20.linux-amd64.tar.gz \
+    && tar -xvf go1.20.linux-amd64.tar.gz \
+    && mv go /usr/local \
+    && rm -rf go1.20.linux-amd64.tar.gz \
+    && export PATH=$PATH:/usr/local/go/bin
+
+# Install git untuk clone repository
+RUN apt-get install git -y
+
+# Buat direktori kerja dan pindah ke sana
 WORKDIR /app
 
-# Copy semua file ke dalam container
+# Clone repository Go project Anda
 COPY . .
 
-# Download dan install dependencies
-RUN go mod tidy
+# Install dependensi Go
+RUN go mod download
 
-# Build aplikasi
+# Build aplikasi Go
 RUN go build -o main .
 
-# Stage 2: Production Stage
-FROM ubuntu:20.04
+# Install PostgreSQL
+RUN apt-get install postgresql postgresql-contrib -y
 
-# Set non-interactive mode untuk apt
-ENV DEBIAN_FRONTEND=noninteractive
+# Inisialisasi database PostgreSQL (sesuaikan dengan konfigurasi Anda)
+RUN psql -c "CREATE DATABASE your_database_name;" \
+    && psql -c "CREATE USER your_username WITH PASSWORD 'your_password';" \
+    && psql -c "GRANT ALL PRIVILEGES ON DATABASE your_database_name TO your_username;"
 
-# Update repository dan install dependencies untuk GLIBC
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    wget \
-    build-essential \
-    && wget http://ftp.gnu.org/gnu/libc/glibc-2.32.tar.gz \
-    && tar -xvzf glibc-2.32.tar.gz \
-    && cd glibc-2.32 \
-    && mkdir build \
-    && cd build \
-    && ../configure --prefix=/opt/glibc-2.32 \
-    && make -j$(nproc) \
-    && make install \
-    && cd ../.. \
-    && rm -rf glibc-2.32 glibc-2.32.tar.gz \
-    && apt-get remove --purge -y wget build-essential \
-    && apt-get autoremove -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Copy file konfigurasi database (jika diperlukan)
+COPY postgresql.conf /etc/postgresql/postgresql.conf
 
-# Set GLIBC baru sebagai default
-ENV LD_LIBRARY_PATH=/opt/glibc-2.32/lib
+# Set environment variable untuk koneksi database
+ENV DATABASE_URL=postgres://your_username:your_password@localhost:5432/your_database_name
 
-# Set working directory
-WORKDIR /app
+# Expose port untuk koneksi PostgreSQL
+EXPOSE 5432
 
-# Copy binary dari tahap builder
-COPY --from=builder /app/main .
-
-# Copy file konfigurasi Firebase
-COPY ServiceAccountKey.json /app/ServiceAccountKey.json
-
-# Expose port aplikasi
-EXPOSE 8080
-
-# Jalankan aplikasi
-CMD ["./main"]
+# Jalankan aplikasi Go
+CMD ["/app/main"]
